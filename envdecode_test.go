@@ -205,9 +205,9 @@ func TestDecode(t *testing.T) {
 	}
 
 	urlVal, _ := url.Parse("https://example.com")
-	expectedUrlSlice := []*url.URL{urlVal}
-	if !reflect.DeepEqual(tc.URLSlice, expectedUrlSlice) {
-		t.Fatalf("Expected %s, got %s", expectedUrlSlice, tc.URLSlice)
+	expectedURLSlice := []*url.URL{urlVal}
+	if !reflect.DeepEqual(tc.URLSlice, expectedURLSlice) {
+		t.Fatalf("Expected %s, got %s", expectedURLSlice, tc.URLSlice)
 	}
 
 	if tc.UnsetString != "" {
@@ -360,7 +360,7 @@ func TestDecodeErrors(t *testing.T) {
 		if r := recover(); r != nil {
 		}
 	}()
-	err = Decode(&tcrd)
+	_ = Decode(&tcrd)
 	t.Fatal("This should not have been reached. A panic should have occured.")
 }
 

@@ -17,7 +17,10 @@ import (
 
 // ErrInvalidTarget indicates that the target value passed to
 // Decode is invalid.  Target must be a non-nil pointer to a struct.
-var ErrInvalidTarget = errors.New("target must be non-nil pointer to struct that has at least one exported field with a valid env tag.")
+var ErrInvalidTarget = errors.New("target must be non-nil pointer to struct that has at least one exported field with a valid env tag")
+
+// ErrNoTargetFieldsAreSet indicates that none of the target fields were set
+// from environment variables.
 var ErrNoTargetFieldsAreSet = errors.New("none of the target fields were set from environment variables")
 
 // FailureFunc is called when an error is encountered during a MustDecode
@@ -56,7 +59,7 @@ type Decoder interface {
 // recursively.  time.Duration is supported via the
 // time.ParseDuration() function and *url.URL is supported via the
 // url.Parse() function. Slices are supported for all above mentioned
-// primitive types. Semicolon is used as delimiter in environment variables.
+// primitive types. Comma is used as delimiter in environment variables.
 func Decode(target interface{}) error {
 	nFields, err := decode(target, false)
 	if err != nil {
@@ -197,7 +200,7 @@ func decode(target interface{}, strict bool) (int, error) {
 }
 
 func decodeSlice(f *reflect.Value, env string) {
-	parts := strings.Split(env, ";")
+	parts := strings.Split(env, ",")
 
 	values := parts[:0]
 	for _, x := range parts {
@@ -291,8 +294,7 @@ func MustStrictDecode(target interface{}) {
 	}
 }
 
-//// Configuration info for Export
-
+// ConfigInfo contains configuration information for exporting.
 type ConfigInfo struct {
 	Field        string
 	EnvVar       string
@@ -303,6 +305,7 @@ type ConfigInfo struct {
 	UsesEnv      bool
 }
 
+// ConfigInfoSlice is a slice of configuration informations.
 type ConfigInfoSlice []*ConfigInfo
 
 func (c ConfigInfoSlice) Less(i, j int) bool {
@@ -315,7 +318,7 @@ func (c ConfigInfoSlice) Swap(i, j int) {
 	c[i], c[j] = c[j], c[i]
 }
 
-// Returns a list of final configuration metadata sorted by envvar name
+// Export returns a list of final configuration metadata sorted by envvar name.
 func Export(target interface{}) ([]*ConfigInfo, error) {
 	s := reflect.ValueOf(target)
 	if s.Kind() != reflect.Ptr || s.IsNil() {
